@@ -1291,21 +1291,22 @@ function PAlmsLandingPage({
   courses: Course[]
   notify: (m: string) => void
 }) {
-  const [selectedFeature, setSelectedFeature] = useState(0)
+  const [activeFeatureTab, setActiveFeatureTab] = useState(0)
   const [selectedTrack, setSelectedTrack] = useState('All Tracks')
   const [newsletterEmail, setNewsletterEmail] = useState('')
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   const [scrollY, setScrollY] = useState(0)
   const [navVisible, setNavVisible] = useState(true)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const lastScrollY = useRef(0)
 
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY
       setScrollY(currentScrollY)
-
       if (currentScrollY > lastScrollY.current && currentScrollY > 70) {
         setNavVisible(false)
+        setMobileNavOpen(false)
       } else if (currentScrollY < lastScrollY.current || currentScrollY <= 70) {
         setNavVisible(true)
       }
@@ -1316,21 +1317,21 @@ function PAlmsLandingPage({
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect()
     const x = (e.clientX - rect.left) / rect.width - 0.5
     const y = (e.clientY - rect.top) / rect.height - 0.5
     setMousePos({ x, y })
   }
 
-  const tiltX = -mousePos.y * 12 + Math.min(scrollY * 0.02, 6)
-  const tiltY = mousePos.x * 12
+  const rotateX = -mousePos.y * 12 + Math.min(scrollY * 0.02, 6)
+  const rotateY = mousePos.x * 12
 
   const features = [
     {
       title: 'Interactive Code Editor',
       desc: 'Practice real Python, JavaScript, and database queries directly in your browser with instant feedback.',
-      icon: Code2
+      icon: Terminal
     },
     {
       title: 'Structured Learning Paths',
@@ -1340,7 +1341,7 @@ function PAlmsLandingPage({
     {
       title: 'Student Progress Tracking',
       desc: 'Track completed lessons, view quiz scorecards, and monitor your personal learning velocity.',
-      icon: LineChart
+      icon: CheckCircle2
     },
     {
       title: 'Official Certificates',
@@ -1388,15 +1389,40 @@ function PAlmsLandingPage({
         </nav>
 
         <div className="nav-auth-actions">
-          <button className="btn-ghost-pill" onClick={onOpenLogin}>
+          <button className="btn-ghost-pill landing-login-btn" onClick={onOpenLogin}>
             Log In
           </button>
-          <button className="btn-pill-dark" onClick={onOpenRegister}>
+          <button className="btn-pill-dark landing-get-started-btn" onClick={onOpenRegister}>
             Get Started
             <ArrowRight size={14} />
           </button>
+          <button
+            className="landing-mobile-menu-btn"
+            onClick={() => setMobileNavOpen(!mobileNavOpen)}
+            aria-label="Toggle navigation menu"
+          >
+            {mobileNavOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
         </div>
       </header>
+
+      {/* Mobile Navigation Dropdown Menu */}
+      {mobileNavOpen && (
+        <div className="landing-mobile-dropdown">
+          <a href="#features" onClick={() => setMobileNavOpen(false)}>Features</a>
+          <a href="#courses" onClick={() => setMobileNavOpen(false)}>Courses</a>
+          <a href="#paths" onClick={() => setMobileNavOpen(false)}>Learning Paths</a>
+          <a href="#community" onClick={() => setMobileNavOpen(false)}>Community</a>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', paddingTop: '10px', borderTop: '1px solid var(--border-light)' }}>
+            <button className="btn-pill-light" style={{ justifyContent: 'center', padding: '8px' }} onClick={() => { setMobileNavOpen(false); onOpenLogin() }}>
+              Log In
+            </button>
+            <button className="btn-pill-dark" style={{ justifyContent: 'center', padding: '8px' }} onClick={() => { setMobileNavOpen(false); onOpenRegister() }}>
+              Get Started
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Hero Section */}
       <section className="landing-hero-section">
@@ -1436,7 +1462,7 @@ function PAlmsLandingPage({
           <div
             className="hero-browser-card"
             style={{
-              transform: `perspective(1200px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateY(${Math.min(scrollY * -0.04, 0)}px)`,
+              transform: `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(${Math.min(scrollY * -0.04, 0)}px)`,
               transition: 'transform 0.15s ease-out, box-shadow 0.3s ease'
             }}
           >
@@ -1540,8 +1566,8 @@ function PAlmsLandingPage({
             return (
               <button
                 key={feat.title}
-                className={`feature-pill-btn ${selectedFeature === idx ? 'active' : ''}`}
-                onClick={() => setSelectedFeature(idx)}
+                className={`feature-pill-btn ${activeFeatureTab === idx ? 'active' : ''}`}
+                onClick={() => setActiveFeatureTab(idx)}
               >
                 <Icon size={16} />
                 <span>{feat.title}</span>
@@ -1552,8 +1578,8 @@ function PAlmsLandingPage({
 
         <div className="feature-interactive-showcase">
           <div className="feature-showcase-sidebar">
-            <h3>{features[selectedFeature].title}</h3>
-            <p>{features[selectedFeature].desc}</p>
+            <h3>{features[activeFeatureTab].title}</h3>
+            <p>{features[activeFeatureTab].desc}</p>
             <button className="btn-pill-dark" onClick={onOpenRegister}>
               Start Learning Now
               <ArrowRight size={14} />
@@ -1571,7 +1597,7 @@ function PAlmsLandingPage({
             </div>
 
             <div className="feature-preview-body">
-              {selectedFeature === 0 && (
+              {activeFeatureTab === 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <b>Interactive Code Runner</b>
@@ -1586,7 +1612,7 @@ function PAlmsLandingPage({
                 </div>
               )}
 
-              {selectedFeature === 1 && (
+              {activeFeatureTab === 1 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <b style={{ fontSize: '14px' }}>Step-by-Step Curriculum Roadmap</b>
                   {[
@@ -1607,7 +1633,7 @@ function PAlmsLandingPage({
                 </div>
               )}
 
-              {selectedFeature === 2 && (
+              {activeFeatureTab === 2 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   <b style={{ fontSize: '14px' }}>Personal Learning Dashboard</b>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -1623,7 +1649,7 @@ function PAlmsLandingPage({
                 </div>
               )}
 
-              {selectedFeature === 3 && (
+              {activeFeatureTab === 3 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   <b style={{ fontSize: '14px' }}>Verified Completion Certificate</b>
                   <div style={{ background: '#ffffff', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-md)', padding: '18px', textAlign: 'center' }}>
@@ -1954,14 +1980,14 @@ function AuthPage({
   return (
     <div className="auth-fullpage-wrapper">
       <header className="auth-fullpage-header">
-        <button className="btn-ghost-pill auth-back-btn" onClick={onBack} style={{ fontWeight: 600 }}>
-          <span className="auth-back-text-full">← Back to PAlms Home</span>
-          <span className="auth-back-text-short">← Home</span>
-        </button>
-
-        <div className="nav-brand-group" onClick={onBack}>
+        <div
+          className="nav-brand-group"
+          onClick={onBack}
+          title="Return to Homepage"
+          style={{ cursor: 'pointer' }}
+        >
           <div className="nav-logo-box">P</div>
-          <b>PAlms Platform</b>
+          <b>PAlms</b>
         </div>
 
         <div className="auth-header-action-group">
@@ -2214,19 +2240,28 @@ function PortalSidebar({
         </button>
       </div>
 
-      <div style={{ padding: '0 16px', marginBottom: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', background: '#fafafa', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)' }}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#09090b', color: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '12px', fontWeight: 800 }}>
-            {user.initials}
+      <div style={{ padding: '0 12px', marginBottom: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', background: '#fafafa', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
+            <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: '#09090b', color: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '11px', fontWeight: 800, flexShrink: 0 }}>
+              {user.initials}
+            </div>
+            <div style={{ overflow: 'hidden' }}>
+              <b style={{ fontSize: '12.5px', display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                {user.name}
+              </b>
+              <span style={{ fontSize: '10.5px', color: 'var(--text-muted)', display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                {user.email}
+              </span>
+            </div>
           </div>
-          <div style={{ overflow: 'hidden' }}>
-            <b style={{ fontSize: '13px', display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-              {user.name}
-            </b>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-              {user.email}
-            </span>
-          </div>
+          <button
+            onClick={onLogout}
+            title="Sign Out"
+            style={{ width: '28px', height: '28px', borderRadius: 'var(--radius-xs)', background: '#f4f4f5', color: '#71717a', display: 'grid', placeItems: 'center', border: '1px solid var(--border-light)', flexShrink: 0, cursor: 'pointer' }}
+          >
+            <LogOut size={13} />
+          </button>
         </div>
       </div>
 
@@ -2247,7 +2282,7 @@ function PortalSidebar({
         })}
       </nav>
 
-      <div style={{ marginTop: 'auto', padding: '16px' }}>
+      <div style={{ marginTop: 'auto', paddingTop: '12px' }}>
         <button
           className="sidebar-signout-btn"
           onClick={onLogout}
@@ -2487,7 +2522,7 @@ function PortalOverview({
 
         <div className="portal-metric-box">
           <span className="metric-box-label">ACTIVE COURSES</span>
-          <div className="metric-box-val">
+          <div className="portal-metric-box-val">
             {enrolledCourses.length} <span>{enrolledCourses.length === 1 ? 'Track' : 'Tracks'}</span>
           </div>
           <span className="metric-box-sub">
@@ -2846,14 +2881,9 @@ Query executed in 4.2ms. Result rows (4 rows):
         <button className="btn-ghost-pill studio-back-btn" onClick={onBack}>
           ← Back to Dashboard
         </button>
-        <div className="studio-actions-group">
-          <button className="btn-pill-light studio-action-btn" onClick={handleDownloadCode}>
-            <Download size={13} />
-            Download {course.fileName}
-          </button>
-          <button className="btn-pill-dark studio-action-btn" onClick={handleRunCode} disabled={running}>
-            {running ? 'Executing...' : 'Run Code'}
-            <Play size={13} />
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button className="btn-pill-light" style={{ fontSize: '11.5px', padding: '6px 14px' }} onClick={handleDownloadCode}>
+            <Download size={13} /> Download File
           </button>
         </div>
       </div>
@@ -2984,18 +3014,20 @@ Query executed in 4.2ms. Result rows (4 rows):
         {/* Right Column: Dynamic Course Code Editor & Terminal */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ background: '#09090b', borderRadius: 'var(--radius-xl)', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', boxShadow: 'var(--shadow-md)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 18px', background: 'rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.08)', fontSize: '12.5px', color: '#a1a1aa' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 16px', background: '#18181b', borderBottom: '1px solid rgba(255,255,255,0.08)', flexWrap: 'wrap', gap: '8px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Code2 size={15} color="#a1a1aa" />
-                <span style={{ fontWeight: 700, color: '#ffffff' }}>{course.fileName}</span>
+                <span style={{ fontWeight: 700, color: '#ffffff', fontSize: '13px' }}>{course.fileName}</span>
                 <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.08)', color: '#d4d4d8', padding: '2px 8px', borderRadius: 'var(--radius-full)' }}>{course.track}</span>
               </div>
               <button
-                style={{ background: 'none', border: 'none', color: '#d4d4d8', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-                onClick={handleDownloadCode}
+                className="btn-pill-dark"
+                style={{ height: '32px', fontSize: '11.5px', padding: '0 14px', background: '#ffffff', color: '#09090b' }}
+                onClick={handleRunCode}
+                disabled={running}
               >
-                <Download size={13} />
-                Save & Download
+                {running ? 'Executing...' : 'Run Code'}
+                <Play size={13} />
               </button>
             </div>
 
@@ -3075,20 +3107,10 @@ function AssignmentSubmissionModal({
         zIndex: 99999,
         display: 'grid',
         placeItems: 'center',
-        padding: '20px'
+        padding: '16px'
       }}
     >
-      <div
-        style={{
-          background: '#ffffff',
-          borderRadius: 'var(--radius-xl)',
-          maxWidth: '540px',
-          width: '100%',
-          padding: '32px',
-          boxShadow: 'var(--shadow-xl)',
-          position: 'relative'
-        }}
-      >
+      <div className="submission-modal-card">
         <button
           onClick={onClose}
           style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
@@ -3158,13 +3180,12 @@ function AssignmentSubmissionModal({
             />
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '12px' }}>
+          <div className="submission-modal-actions">
             <button type="button" className="btn-ghost-pill" onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="btn-pill-dark">
-              Submit for Admin Review
-              <ArrowRight size={14} />
+            <button type="submit" className="btn-pill-dark" style={{ height: '42px', padding: '0 20px' }}>
+              Submit for Admin Review →
             </button>
           </div>
         </form>
