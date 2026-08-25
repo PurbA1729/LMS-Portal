@@ -1954,8 +1954,9 @@ function AuthPage({
   return (
     <div className="auth-fullpage-wrapper">
       <header className="auth-fullpage-header">
-        <button className="btn-ghost-pill" onClick={onBack} style={{ fontWeight: 600 }}>
-          ← Back to PAlms Home
+        <button className="btn-ghost-pill auth-back-btn" onClick={onBack} style={{ fontWeight: 600 }}>
+          <span className="auth-back-text-full">← Back to PAlms Home</span>
+          <span className="auth-back-text-short">← Home</span>
         </button>
 
         <div className="nav-brand-group" onClick={onBack}>
@@ -1963,13 +1964,12 @@ function AuthPage({
           <b>PAlms Platform</b>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+        <div className="auth-header-action-group">
+          <span className="auth-header-helper-text">
             {mode === 'login' ? "Don't have an account?" : "Already have an account?"}
           </span>
           <button
-            className="btn-pill-light"
-            style={{ fontSize: '12px', padding: '6px 16px' }}
+            className="btn-pill-light auth-header-toggle-btn"
             onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
           >
             {mode === 'login' ? 'Register' : 'Log In'}
@@ -2205,6 +2205,13 @@ function PortalSidebar({
           <div className="nav-logo-box">P</div>
           <b>PAlms Portal</b>
         </div>
+        <button
+          className="sidebar-close-btn"
+          onClick={() => setPage(page)}
+          aria-label="Close menu"
+        >
+          <X size={18} />
+        </button>
       </div>
 
       <div style={{ padding: '0 16px', marginBottom: '16px' }}>
@@ -2835,16 +2842,16 @@ Query executed in 4.2ms. Result rows (4 rows):
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <button className="btn-ghost-pill" onClick={onBack}>
+      <div className="studio-topbar-row">
+        <button className="btn-ghost-pill studio-back-btn" onClick={onBack}>
           ← Back to Dashboard
         </button>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button className="btn-pill-light" onClick={handleDownloadCode}>
+        <div className="studio-actions-group">
+          <button className="btn-pill-light studio-action-btn" onClick={handleDownloadCode}>
             <Download size={13} />
             Download {course.fileName}
           </button>
-          <button className="btn-pill-dark" onClick={handleRunCode} disabled={running}>
+          <button className="btn-pill-dark studio-action-btn" onClick={handleRunCode} disabled={running}>
             {running ? 'Executing...' : 'Run Code'}
             <Play size={13} />
           </button>
@@ -2864,7 +2871,7 @@ Query executed in 4.2ms. Result rows (4 rows):
                 allowFullScreen
               />
             </div>
-            <div style={{ padding: '16px 20px', background: '#18181b', color: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="studio-video-header">
               <div>
                 <span style={{ fontSize: '11px', color: '#71717a', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                   LESSON {selectedLessonIndex + 1} OF {course.syllabus.length} • {activeLesson.duration}
@@ -3216,10 +3223,10 @@ function PortalAssessments({
             onNavigate={() => onNavigate('Catalog')}
           />
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="assessment-list-container" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {assignments.map(a => (
-              <div key={a.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 24px', background: '#ffffff', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
-                <div>
+              <div key={a.id} className="assessment-card-row">
+                <div className="assessment-info-block">
                   <b style={{ fontSize: '15px', display: 'block' }}>{a.title}</b>
                   <span style={{ fontSize: '12.5px', color: 'var(--text-secondary)' }}>
                     {a.course} • Due {a.dueDate} (Max: {a.totalPoints} pts)
@@ -3230,7 +3237,7 @@ function PortalAssessments({
                     </span>
                   )}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div className="assessment-action-block" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   <span
                     style={{
                       padding: '5px 12px',
@@ -3250,10 +3257,10 @@ function PortalAssessments({
                   </span>
                   <button
                     className="btn-pill-dark"
-                    style={{ height: '34px', fontSize: '12px', padding: '0 14px' }}
+                    style={{ height: '36px', fontSize: '12px', padding: '0 16px' }}
                     onClick={() => onOpenSubmission(a)}
                   >
-                    {a.status === 'Graded' ? 'Resubmit' : a.status === 'Pending Review' ? 'Update Submission' : 'Submit Work'}
+                    {a.status === 'Not Submitted' ? 'Submit Work' : 'Update Submission'}
                   </button>
                 </div>
               </div>
@@ -3880,27 +3887,26 @@ function PortalCommunity({
               />
             )}
 
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div className="community-input-row">
               <button
                 type="button"
                 onClick={() => setShowCodeInput(!showCodeInput)}
-                className="btn-ghost-pill"
-                style={{ fontSize: '12px', padding: '6px 12px' }}
+                className="btn-ghost-pill community-attach-code-btn"
                 title="Attach Code"
               >
                 <Code2 size={15} />
-                <span>{showCodeInput ? 'Hide Code' : 'Attach Code'}</span>
+                <span className="community-attach-code-text">{showCodeInput ? 'Hide Code' : 'Attach Code'}</span>
               </button>
 
               <input
                 type="text"
-                placeholder={user.role === 'Admin' ? 'Reply to students as Instructor...' : 'Ask a question or share ideas with your coursemates...'}
+                className="community-chat-input"
+                placeholder={user.role === 'Admin' ? 'Reply to students as Instructor...' : 'Ask a question or share ideas...'}
                 value={chatText}
                 onChange={e => setChatText(e.target.value)}
-                style={{ flex: 1, height: '42px', padding: '0 16px', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-full)', fontSize: '13px', outline: 'none' }}
               />
 
-              <button type="submit" className="btn-pill-dark" style={{ height: '42px', padding: '0 18px' }}>
+              <button type="submit" className="btn-pill-dark community-send-btn">
                 <Send size={14} />
               </button>
             </div>
