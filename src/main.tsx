@@ -2281,16 +2281,6 @@ function PortalSidebar({
           )
         })}
       </nav>
-
-      <div style={{ marginTop: 'auto', paddingTop: '12px' }}>
-        <button
-          className="sidebar-signout-btn"
-          onClick={onLogout}
-        >
-          <LogOut size={16} />
-          <span>Sign Out</span>
-        </button>
-      </div>
     </aside>
   )
 }
