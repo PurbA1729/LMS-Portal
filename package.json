@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && cd server && npm install && npm run build",
     "build:server": "cd server && npm install && npm run build",
-    "build:all": "npm run build && npm run build:server",
+    "build:all": "npm run build",
     "start": "cd server && npm start",
     "preview": "vite preview"
   },
