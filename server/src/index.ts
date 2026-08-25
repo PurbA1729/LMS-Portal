@@ -53,7 +53,10 @@ const User = mongoose.model<IUser>('User', UserSchema)
 // Connect to MongoDB Atlas
 if (MONGODB_URI) {
   mongoose
-    .connect(MONGODB_URI)
+    .connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 10000
+    })
     .then(() => {
       console.log('✅ [MongoDB] Successfully connected to MongoDB Atlas database: palms_lms')
     })
@@ -61,7 +64,7 @@ if (MONGODB_URI) {
       console.error('❌ [MongoDB] Atlas Connection error:', err.message)
     })
 } else {
-  console.warn('⚠️ [MongoDB] MONGODB_URI is not set in server/.env. Using local fallback mode.')
+  console.warn('⚠️ [MongoDB] MONGODB_URI is not set in environment variables.')
 }
 
 /* ==========================================================================
